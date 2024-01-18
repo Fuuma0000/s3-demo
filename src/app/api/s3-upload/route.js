@@ -12,17 +12,20 @@ const s3Client = new S3Client({
 async function uploadFileToS3(file, fileName) {
   const fileBuffer = file;
   console.log(fileName);
+  // 重複しないように現在時刻を付与
+  // これがDBに保存する文字列
+  const key = `${fileName}-${Date.now()}`;
 
   const params = {
     Bucket: process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME,
-    Key: `${fileName}-${Date.now()}`, // 重複しないように現在時刻を付与
+    Key: key,
     Body: fileBuffer,
-    ContentType: "image/jpeg",
+    ContentType: "image/jpeg" || "image/png",
   };
 
   const command = new PutObjectCommand(params);
   await s3Client.send(command);
-  return fileName;
+  return key;
 }
 
 export async function POST(request) {
